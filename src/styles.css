@@ -96,7 +96,6 @@ main {
         width: 24px;
       }
 
-
       transition: all .1s;
       &:active {
         transform: scale(0.92);
@@ -110,12 +109,44 @@ main {
 }
 
 
+#modal { 
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  top: 50%;
+  left: 50%;
+  width: 500px;
+  height: 300px;
+  background-color: #313244;
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+  padding: var(--padding);
 
-#status-change {
-  /* transform: all .3s;
-  &:active {
-    transform: scale(0.92);
-  } */
+  > h1 {
+    font-size: 24px;
+  }
+  > img {
+    margin-top: 20px;
+    width: 300px;
+    border-radius: 4px;
+  }
+  > div{
+    display: flex;
+    gap: 8px;
+  }
+  a, button {
+    margin-top: 40px;
+    background-color: var(--black);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
+    border: 0;
+    cursor: pointer;
+  }
 }
 
 .music {
