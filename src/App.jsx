@@ -3,6 +3,7 @@ import "./App.css";
 import Music from "./components/Music";
 
 let PLAYING = "Cloudless";
+let START = 0;
 
 function App() {
   const [playing, setPlaying] = useState("Cloudless");
