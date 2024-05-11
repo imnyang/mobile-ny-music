@@ -29,7 +29,6 @@ function App() {
         setMusics(eval(data))
       }));
     }, 10000)
-    volume.current.value = 100
     progress.current.value = 0
     audioContainer.current.currentTime = 0
   }, [])
