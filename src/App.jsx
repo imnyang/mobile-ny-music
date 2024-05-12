@@ -18,6 +18,8 @@ function App() {
   /** @type {React.MutableRefObject<HTMLInputElement>} */
   const progress = useRef()
 
+  const [isDesktop, setDesktop] = useState(window.innerWidth > 1450);
+
   useEffect(() => {
     if (START == 1) return
     START = 1
@@ -29,6 +31,7 @@ function App() {
         setMusics(eval(data))
       }));
     }, 10000)
+    setDesktop(window.innerWidth > 1200);
     progress.current.value = 0
     audioContainer.current.currentTime = 0
   }, [])
@@ -91,6 +94,19 @@ function App() {
         <source id="audioSource" src="" ref={audioSource} type="audio/mpeg" />
         Your browser does not support the audio format.
       </audio>
+
+      {isDesktop && (
+        <div id="modal">
+          <h1>지금 데스크탑 이신거 같아요!</h1>
+          <img src="desk.png" />
+          <div>
+            <a href="https://github.com/5-23/ny-music">
+              데스크탑 버전으로 설치하기
+            </a>
+            <button onClick={() => setDesktop(false)}>지금은 그냥 볼레요</button>
+          </div>
+        </div>
+      )}
 
       <div id="music">
         <div id="FurryClass">
