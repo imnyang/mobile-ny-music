@@ -4,7 +4,7 @@ import Music from "./components/Music";
 
 let PLAYING = "Cloudless";
 let START = 0;
-
+let FOCUS = true;
 function App() {
   const [playing, setPlaying] = useState("Cloudless");
   const [status, setStatus] = useState("pause");
@@ -36,8 +36,35 @@ function App() {
     audioContainer.current.currentTime = 0
   }, [])
 
+  
+  useEffect(() => {
+    if (musics.length == 0) return
+    setInterval(async () => {
+        let overPlay = progress.current.value - audioContainer.current.currentTime / audioContainer.current.duration * 1000;
+        if (String(overPlay) == "NaN") overPlay = 0
+
+        if (FOCUS && (overPlay > 10 || overPlay < -10)) {
+          audioContainer.current.currentTime = progress.current.value / 1000 * audioContainer.current.duration
+        }else {
+          if (audioContainer.current.paused || String(audioContainer.current.duration) == "NaN") {return}
+
+          let progressPercent = audioContainer.current.currentTime / audioContainer.current.duration * 1000;
+          if (String(progressPercent) == "NaN") { 
+            progressPercent = 0
+          }
+          progress.current.value = progressPercent
+          if (progressPercent >= 990) {
+            musicNext()
+            progress.current.value = 0
+            audioContainer.current.currentTime = 0
+          }
+        }
+    }, 100)
+  }, [musics])
+
   useEffect(() => {
     if (status == "play") {
+      audioContainer.current.play()
       if (!decodeURI(audioSource.current.src).startsWith(`https://fback.imnyang.xyz//NY64_Cover/Cover/${playing}.mp3`)) {
         let date = Date.now();
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -61,8 +88,10 @@ function App() {
           musicPrev
         );
         navigator.mediaSession.setActionHandler("seekto", (e) => {
-          progress.current.value = e.seekTime*10
-          audioContainer.current.currentTime = e.seekTime
+          let seekTime = e.seekTime / 2
+          console.log(seekTime)
+          progress.current.value = seekTime*10
+          audioContainer.current.currentTime = seekTime
         });
         audioSource.current.src = `https://fback.imnyang.xyz//NY64_Cover/Cover/${playing}.mp3?${date}`
         audioContainer.current.load()
@@ -78,19 +107,32 @@ function App() {
   }, [playing, status])
 
   function musicNext() {
+
+    audioContainer.current.currentTime = 0
+    progress.current.value = 0
+    
     PLAYING = musics[(musics.indexOf(PLAYING) + 1) % musics.length];
     setPlaying(PLAYING);
   }
 
   function musicPrev() {
-    PLAYING =
-      musics[(musics.indexOf(PLAYING) - 1 + musics.length) % musics.length];
+    audioContainer.current.currentTime = 0
+    progress.current.value = 0
+    PLAYING = musics[(musics.indexOf(PLAYING) - 1 + musics.length) % musics.length];
     setPlaying(PLAYING);
+
   }
   
+  onfocus = () => {
+    FOCUS = true
+  }
+  onblur = () => {
+    FOCUS = false
+  }
+
   return (
     <main>
-      <audio autobuffer id="audioContainer" preload="metadata" ref={audioContainer} autoplay>
+      <audio id="audioContainer" preload="metadata" ref={audioContainer}>
         <source id="audioSource" src="" ref={audioSource} type="audio/mpeg" />
         Your browser does not support the audio format.
       </audio>
@@ -122,6 +164,9 @@ function App() {
             key={index}
             name={name}
             onClick={(name) => {
+
+              audioContainer.current.currentTime = 0
+              progress.current.value = 0
               setPlaying(name);
               PLAYING = name;
             }}
@@ -130,7 +175,25 @@ function App() {
       </div>
       </div>
       <div id="bar">
-        <input type="range" min="0" max="1000" ref={progress} />
+        <input type="range" min="0" max="1000" ref={progress} onChange={() =>{
+          if (!decodeURI(audioSource.current.src).startsWith(`https://fback.imnyang.xyz//NY64_Cover/Cover/${playing}.mp3`)) {
+            let date = Date.now();
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: playing,
+              album: "NY Music",
+              artwork: [
+                { src: `https://fback.imnyang.xyz//NY64_Cover/Image/${playing}.jpg?${date}`, sizes: '96x96', type: 'image/png' },
+                { src: `https://fback.imnyang.xyz//NY64_Cover/Image/${playing}.jpg?${date}`, sizes: '128x128', type: 'image/png' },
+                { src: `https://fback.imnyang.xyz//NY64_Cover/Image/${playing}.jpg?${date}`, sizes: '192x192', type: 'image/png' },
+                { src: `https://fback.imnyang.xyz//NY64_Cover/Image/${playing}.jpg?${date}`, sizes: '256x256', type: 'image/png' },
+                { src: `https://fback.imnyang.xyz//NY64_Cover/Image/${playing}.jpg?${date}`, sizes: '384x384', type: 'image/png' },
+                { src: `https://fback.imnyang.xyz//NY64_Cover/Image/${playing}.jpg?${date}`, sizes: '512x512', type: 'image/png' },
+              ]
+            });
+            audioSource.current.src = `https://fback.imnyang.xyz//NY64_Cover/Cover/${playing}.mp3?${date}`
+            audioContainer.current.load()
+          }
+        }}/>
         <div>
           <img
             className="rev-x"
